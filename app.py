@@ -10,22 +10,22 @@ import os
 
 # Configure Gemini API
 def configure_gemini():
-    """Configure Gemini API with user's API key"""
-    if 'gemini_api_key' not in st.session_state:
-        st.session_state.gemini_api_key = ""
+    """Configure Gemini API with environment variable"""
+    api_key = os.getenv('GEMINI_API_KEY')
     
-    if not st.session_state.gemini_api_key:
-        api_key = st.text_input("Enter the Password:", type="password")
-        if api_key:
-            st.session_state.gemini_api_key = api_key
-            genai.configure(api_key=api_key)
-            return True
-        else:
-            st.warning("Please enter the Password to use AI analysis.")
-            return False
-    else:
-        genai.configure(api_key=st.session_state.gemini_api_key)
+    if not api_key:
+        st.error("❌ GEMINI_API_KEY environment variable not found!")
+        st.write("Please set the GEMINI_API_KEY environment variable to use AI analysis.")
+        st.write("You can set it by:")
+        st.code("export GEMINI_API_KEY=your_api_key_here", language="bash")
+        return False
+    
+    try:
+        genai.configure(api_key=api_key)
         return True
+    except Exception as e:
+        st.error(f"❌ Error configuring Gemini API: {str(e)}")
+        return False
 
 def get_current_date_for_llm():
     """Get current date and format it for LLM context"""
